@@ -25,21 +25,18 @@ public class GroundCheck : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision){
         if (collision.tag == groundTag){
-            Debug.Log("何かが判定に入りました");
             isGroundEnter = true;
         }
     }
     
     private void OnTriggerStay2D(Collider2D collision){
         if (collision.tag == groundTag){
-            Debug.Log("何かが判定に入り続けています");
             isGroundStay = true;
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision){
         if (collision.tag == groundTag){
-            Debug.Log("何かが判定を出ました。");
             isGroundExit = true;
         }
     }
