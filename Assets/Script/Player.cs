@@ -6,11 +6,16 @@ public class Player : MonoBehaviour
 {
     // インスペクターで設定する
     public float speed;
+    public float gravity;
+    public float jumpSpeed;
+    public float jumpHeight;
     public GroundCheck ground;
 
-    private Animator anim = null;
+    private Animator anim  = null;
     private Rigidbody2D rb = null;
-    private bool isGround = false;
+    private bool isGround  = false;
+    private bool isJump    = false;
+    private float jumpPos  = 0.0f;
 
     void Start()
     {
@@ -27,7 +32,27 @@ public class Player : MonoBehaviour
 
         // キー入力されたら行動する
         float horizontalKey = Input.GetAxis("Horizontal");
+        float verticalKey   = Input.GetAxis("Vertical");
         float xSpeed = 0.0f;
+        float ySpeed = -gravity;
+
+        if (isGround){
+            if(verticalKey > 0) {
+                ySpeed = jumpSpeed;
+                jumpPos = transform.position.y; // ジャンプした位置を記録する
+                isJump = true;
+            } else {
+                isJump = false;
+            }
+        }
+        else if (isJump){ // ジャンプ中も押す間、かつ最大の高さを声ない間は上昇する. 
+            if (verticalKey > 0 && jumpPos + jumpHeight > transform.position.y){
+                ySpeed = jumpSpeed;
+            }
+            else {
+                isJump = false;
+            }
+        }
 
         if (horizontalKey > 0) {
             transform.localScale = new Vector3(1, 1, 1);
@@ -45,6 +70,6 @@ public class Player : MonoBehaviour
             anim.SetBool("run", false);
             xSpeed = 0.0f;
         }
-        rb.velocity = new Vector2(xSpeed, rb.velocity.y);
+        rb.velocity = new Vector2(xSpeed, ySpeed);
     }
 }
