@@ -4,25 +4,28 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    // インスペクターで設定する
-    public float speed;
-    public float gravity;
-    public float jumpSpeed;
-    public float jumpHeight;
-    public float jumpLimitTime;
-    public GroundCheck ground;
-    public GroundCheck head;
-    public AnimationCurve dashCurve;
-    public AnimationCurve jumpCurve;
+    [Header("移動速度")] public float speed;
+    [Header("重力(正の値)")] public float gravity;
+    [Header("ジャンプ速度")] public float jumpSpeed;
+    [Header("ジャンプする高さ")] public float jumpHeight;
+    [Header("ジャンプ制限時間")] public float jumpLimitTime;
+    [Header("接地判定Obj")] public GroundCheck ground;
+    [Header("頭をぶつけた判定Obj")] public GroundCheck head;
+    [Header("ダッシュの速さ表現")] public AnimationCurve dashCurve;
+    [Header("ジャンプの速さ表現")] public AnimationCurve jumpCurve;
 
     private Animator anim  = null;
     private Rigidbody2D rb = null;
     private bool isGround  = false;
     private bool isJump    = false;
+    private bool isRun     = false;
     private bool isHead    = false;
+    private bool isDown    = false;
     private float jumpPos  = 0.0f;
     private float dashTime, jumpTime;
     private float beforeKey;
+
+    private string enemyTag = "Enemy";
 
     void Start()
     {
@@ -31,19 +34,89 @@ public class Player : MonoBehaviour
         rb   = GetComponent<Rigidbody2D>();
     }
 
+    private void OnCollisionEnter2D(Collision2D collision){
+        if(collision.collider.tag == enemyTag){
+            anim.Play("player_down");
+            isDown = true;
+        }
+    }
+
     // Update is called once per frame
     void FixedUpdate()
     {
-        // 設置判定を得る
-        isGround = ground.IsGround();
-        isHead   = head.IsGround();
+        if (!isDown){
+            // 設置判定を得る
+            isGround = ground.IsGround();
+            isHead   = head.IsGround();
+            // 各種座標軸の速度を求める
+            float xSpeed = GetXSpeed();
+            float ySpeed = GetYSpeed();
+            // アニメーションを適用
+            SetAnimation();
 
+            // 移動速度を設定
+            rb.velocity = new Vector2(xSpeed, ySpeed);
+        }
+        else {
+            // Downしている時は、動かないようにする
+            rb.velocity = new Vector2(0, -gravity);
+        }
+    }
+
+    /// <summary>
+    /// X成分で必要な計算をし、速度を返す。
+    /// </summary>
+    /// <returns></returns>
+    private float GetXSpeed(){
         // キー入力されたら行動する
         float horizontalKey = Input.GetAxis("Horizontal");
-        float verticalKey   = Input.GetAxis("Vertical");
         float xSpeed = 0.0f;
-        float ySpeed = -gravity;
 
+        if (horizontalKey > 0) {
+            transform.localScale = new Vector3(1, 1, 1);
+            isRun = true;
+            dashTime += Time.deltaTime;
+            //xSpeed = speed;
+            //ゆっくり加速したい場合、
+            xSpeed = Input.GetAxis("Horizontal") * speed;
+        }
+        else if (horizontalKey < 0) {
+            transform.localScale = new Vector3(-1, 1, 1);
+            isRun = true;
+            dashTime += Time.deltaTime;
+            //xSpeed = -speed;
+            //ゆっくり加速したい場合、
+            xSpeed = Input.GetAxis("Horizontal") * speed;
+        }
+        else {
+            dashTime  = 0.0f;
+            isRun = false;
+            xSpeed = 0.0f;
+        }
+
+        // 前回の入力からダッシュの斑点を判断して速度を変える
+        if (horizontalKey > 0 && beforeKey < 0){
+            dashTime = 0.0f;
+        }
+        else if (horizontalKey > 0 && beforeKey < 0){
+            dashTime = 0.0f;
+        }
+        beforeKey = horizontalKey;
+
+        // アニメーションカーブを速度に適用
+        xSpeed *= dashCurve.Evaluate(dashTime);
+
+        return xSpeed;
+    }
+
+    /// <summary>
+    /// Y成分で必要な計算をし、速度を返す。フラグでプレイヤーの状態を特定して、速度を決め、アニメーションカーブに適用する。
+    /// </summary>
+    /// <returns>Y軸の速さ</returns>
+    private float GetYSpeed(){
+        
+        float verticalKey   = Input.GetAxis("Vertical");
+        float ySpeed = -gravity;
         if (isGround){
             if(verticalKey > 0) {
                 ySpeed = jumpSpeed;
@@ -61,7 +134,7 @@ public class Player : MonoBehaviour
             bool canHeight = jumpPos + jumpHeight > transform.position.y;
             // ジャンプ時間が長くなりすぎてないか
             bool canTime   = jumpLimitTime > jumpTime;
- 
+
             if (pushUpKey && canHeight && canTime && !isHead){
                 ySpeed = jumpSpeed;
                 jumpTime += Time.deltaTime;
@@ -71,45 +144,18 @@ public class Player : MonoBehaviour
                 jumpTime = 0.0f;
             }
         }
-
-        if (horizontalKey > 0) {
-            transform.localScale = new Vector3(1, 1, 1);
-            anim.SetBool("run", true);
-            dashTime += Time.deltaTime;
-            //xSpeed = speed;
-            //ゆっくり加速したい場合、
-            xSpeed = Input.GetAxis("Horizontal") * speed;
-        }
-        else if (horizontalKey < 0) {
-            transform.localScale = new Vector3(-1, 1, 1);
-            anim.SetBool("run", true);
-            dashTime += Time.deltaTime;
-            //xSpeed = -speed;
-            //ゆっくり加速したい場合、
-            xSpeed = Input.GetAxis("Horizontal") * speed;
-        }
-        else {
-            dashTime  = 0.0f;
-            anim.SetBool("run", false);
-            xSpeed = 0.0f;
-        }
-
-        // 前回の入力からダッシュの斑点を判断して速度を変える
-        if (horizontalKey > 0 && beforeKey < 0){
-            dashTime = 0.0f;
-        }
-        else if (horizontalKey > 0 && beforeKey < 0){
-            dashTime = 0.0f;
-        }
-        beforeKey = horizontalKey;
-
         // アニメーションカーブを速度に適用
-        xSpeed *= dashCurve.Evaluate(dashTime);
         if (isJump){
             ySpeed *= jumpCurve.Evaluate(dashTime);
         }
+        return ySpeed;
+    }
+    /// <summary>
+    /// アニメーションをセットする
+    /// </summary>
+    private void SetAnimation(){
         anim.SetBool("jump", isJump);
         anim.SetBool("ground", isGround);
-        rb.velocity = new Vector2(xSpeed, ySpeed);
+        anim.SetBool("run", isRun);
     }
 }
