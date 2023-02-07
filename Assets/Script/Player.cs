@@ -175,8 +175,6 @@ public class Player : MonoBehaviour
             // 踏みつけ判定のワールド座標
             float judgePos = transform.position.y - (capcol.size.y / 2f) + stepOnHeight;
             foreach (ContactPoint2D p in collision.contacts) {
-                Debug.Log(p.point.y);
-                Debug.Log(judgePos);
                 if(p.point.y < judgePos){
                     // もう一度跳ねる
                     ObjectCollision o = collision.gameObject.GetComponent<ObjectCollision>();
