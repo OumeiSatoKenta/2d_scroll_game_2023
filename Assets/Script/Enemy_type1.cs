@@ -7,6 +7,7 @@ using UnityEngine;
 /// </summary>
 public class Enemy_type1 : MonoBehaviour
 {
+    [Header("加算スコア")] public int myScore;
     [Header("画面外でも行動する")] public bool nonVisibleAct;
     [Header("移動速度")] public float speed;
     [Header("重力")] public float gravity;
@@ -52,6 +53,10 @@ public class Enemy_type1 : MonoBehaviour
         }
         else {
             if(!isDead){
+                if (GManager.instance != null){
+                    //スコア加算
+                    GManager.instance.score += myScore;
+                }
                 anim.Play("enemy_type1_down");
                 rb.velocity = new Vector2(0, -gravity);
                 isDead = true;
