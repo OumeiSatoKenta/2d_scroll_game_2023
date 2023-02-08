@@ -911,5 +911,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: fadeImage
       objectReference: {fileID: 0}
+    - target: {fileID: 6384894617375877913, guid: f09d5825685504a64886ca21eb0f755c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f09d5825685504a64886ca21eb0f755c, type: 3}
