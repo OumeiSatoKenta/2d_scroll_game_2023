@@ -6,7 +6,7 @@ using UnityEngine;
 // シーン全体で1つに管理しておきたい情報を持つ
 public class GManager : MonoBehaviour
 {
-    private static GManager instance = null; // static でメモリ確保
+    public static GManager instance = null; // static でメモリ確保
     public int score;
     public int stageNum;
     public int continueNum;
