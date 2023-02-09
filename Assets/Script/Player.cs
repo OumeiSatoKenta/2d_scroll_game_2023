@@ -15,8 +15,9 @@ public class Player : MonoBehaviour
     [Header("ダッシュの速さ表現")] public AnimationCurve dashCurve;
     [Header("ジャンプの速さ表現")] public AnimationCurve jumpCurve;
 
-    private Animator anim    = null;
-    private Rigidbody2D rb   = null;
+    private Animator anim     = null;
+    private Rigidbody2D rb    = null;
+    private SpriteRenderer sr = null;
     private CapsuleCollider2D capcol = null;
     private bool isGround    = false;
     private bool isJump      = false;
@@ -24,8 +25,11 @@ public class Player : MonoBehaviour
     private bool isRun       = false;
     private bool isHead      = false;
     private bool isDown      = false;
+    private bool isContinue  = false;
     private float jumpPos         = 0.0f;
     private float otherJumpHeight = 0.0f;
+    private float continueTime    = 0.0f;
+    private float blinkTime       = 0.0f;
     private float dashTime, jumpTime;
     private float beforeKey;
 
@@ -36,7 +40,36 @@ public class Player : MonoBehaviour
         // コンポーネントのインスタンスを捕まえる
         anim   = GetComponent<Animator>();
         rb     = GetComponent<Rigidbody2D>();
+        sr     = GetComponent<SpriteRenderer>();
         capcol = GetComponent<CapsuleCollider2D>();
+    }
+
+    private void Update(){
+        if(isContinue){
+            // 明滅させる
+            if(blinkTime > 0.2f){
+                sr.enabled = true;
+                blinkTime  = 0.0f;
+            }
+            else if (blinkTime > 0.1f) {
+                sr.enabled = false;
+            }
+            else {
+                sr.enabled = true;
+            }
+
+            // 1秒経ったら明滅終わり
+            if(continueTime > 1.0f){
+                isContinue   = false;
+                blinkTime    = 0.0f;
+                continueTime = 0.0f;
+                sr.enabled   = true;
+            }
+            else {
+                blinkTime    += Time.deltaTime;
+                continueTime += Time.deltaTime;
+            }
+        }
     }
 
     // Update is called once per frame
@@ -206,5 +239,38 @@ public class Player : MonoBehaviour
         anim.SetBool("jump", isJump || isOtherJump);
         anim.SetBool("ground", isGround);
         anim.SetBool("run", isRun);
+    }
+
+    /// <summary>
+    /// コンティニュー待機状態か
+    /// </summary>
+    /// <returns></returns>
+    public bool IsContinueWaiting(){
+        return IsDownAnimEnd();
+    }
+
+    // ダウンアニメーションが完了しているかどうか
+    private bool IsDownAnimEnd(){
+        if(isDown && anim != null){
+            AnimatorStateInfo currentState = anim.GetCurrentAnimatorStateInfo(0);
+            if (currentState.IsName("player_down")){
+                if(currentState.normalizedTime >= 1){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// コンティニューする
+    /// </summary>
+    public void ContinuePlayer(){
+        isDown = false;
+        anim.Play("player_stand");
+        isJump = false;
+        isOtherJump = false;
+        isRun = false;
+        isContinue = true;
     }
 }
