@@ -10,6 +10,7 @@ public class GManager : MonoBehaviour
     public int score;
     public int stageNum;
     public int continueNum;
+    public int heartNum;
 
     private void Awake(){
         if(instance == null){
