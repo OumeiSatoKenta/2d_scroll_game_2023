@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
     private bool isHead      = false;
     private bool isDown      = false;
     private bool isContinue  = false;
+    private bool nonDownAnim = false;
     private float jumpPos         = 0.0f;
     private float otherJumpHeight = 0.0f;
     private float continueTime    = 0.0f;
@@ -33,7 +34,9 @@ public class Player : MonoBehaviour
     private float dashTime, jumpTime;
     private float beforeKey;
 
-    private string enemyTag = "Enemy";
+    private string enemyTag    = "Enemy";
+    private string deadAreaTag = "DeadArea";
+    private string hitAreaTag  = "HitArea";
 
     void Start()
     {
@@ -75,7 +78,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (!isDown){
+        if (!isDown && !GManager.instance.isGameOver){
             // 設置判定を得る
             isGround = ground.IsGround();
             isHead   = head.IsGround();
@@ -224,14 +227,22 @@ public class Player : MonoBehaviour
                     }
 
                 } else {
-                    // ダウンする
-                    anim.Play("player_down");
-                    isDown = true;
+                    ReceivedDamage(true);
                     break;
                 }
             }
         }
     }
+
+    private void OnTriggerEnter2D(Collider2D collision){
+        if(collision.tag == deadAreaTag){
+            ReceivedDamage(false); // ダウンモーションなし
+        }
+        else if(collision.tag == hitAreaTag){
+            ReceivedDamage(true); // ダウンモーションあり
+        }
+    }
+
     /// <summary>
     /// アニメーションをセットする
     /// </summary>
@@ -246,7 +257,12 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <returns></returns>
     public bool IsContinueWaiting(){
-        return IsDownAnimEnd();
+        if(GManager.instance.isGameOver){
+            return false;
+        }
+        else {
+            return IsDownAnimEnd() || nonDownAnim;
+        }
     }
 
     // ダウンアニメーションが完了しているかどうか
@@ -262,15 +278,32 @@ public class Player : MonoBehaviour
         return false;
     }
 
+    private void ReceivedDamage(bool downAnim){
+        if (isDown){
+            return;
+        }
+        else {
+            if(downAnim){
+                anim.Play("player_down");
+            }
+            else {
+                nonDownAnim = true; // DeadAreaに落ちた時、コンティニュー処理で使う
+            }
+            isDown = true;
+            GManager.instance.SubHeartNum();
+        }
+    }
+
     /// <summary>
     /// コンティニューする
     /// </summary>
     public void ContinuePlayer(){
-        isDown = false;
         anim.Play("player_stand");
-        isJump = false;
+        isDown      = false;
+        isJump      = false;
         isOtherJump = false;
-        isRun = false;
-        isContinue = true;
+        isRun       = false;
+        isContinue  = true;
+        nonDownAnim = false;
     }
 }

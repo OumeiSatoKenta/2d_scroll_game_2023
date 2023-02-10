@@ -23,7 +23,7 @@ public class Title : MonoBehaviour
     }
     private void Update(){
         if(!goNextScene && fade.IsFadeOutComplete()){
-            SceneManager.LoadScene("1st_stage");
+            SceneManager.LoadScene("stage1");
             goNextScene = true;
         }
     }
