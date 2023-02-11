@@ -9,6 +9,8 @@ public class StageController : MonoBehaviour
     [Header("コンティニュー位置")] public GameObject[] continuePoint;
     [Header("ゲームオーバー")] public GameObject gameOverObj;
     [Header("フェード")] public FadeImage fade;
+    [Header("ゲームオーバー時に鳴らすSE")] public AudioClip gameOverSE;
+    [Header("リトライ時に鳴らすSE")] public AudioClip retrySE;
 
     private Player p;
     private int nextStageNum;
@@ -38,6 +40,7 @@ public class StageController : MonoBehaviour
         // ゲームオーバー時の処理
         if(GManager.instance.isGameOver && !doGameOver){
             gameOverObj.SetActive(true);
+            GManager.instance.PlaySE(gameOverSE);
             doGameOver = true;
         }
         // Playerがやられた時の処理
@@ -70,6 +73,7 @@ public class StageController : MonoBehaviour
     /// 最初から始める。// ボタンから呼ばれる
     /// </summary>
     public void Retry(){
+        GManager.instance.PlaySE(retrySE);
         ChangeScene(1); // 最初のステージに戻るので
         retryGame = true;
     }

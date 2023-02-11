@@ -12,6 +12,7 @@ public class Enemy_type1 : MonoBehaviour
     [Header("移動速度")] public float speed;
     [Header("重力")] public float gravity;
     [Header("接触判定")] public EnemyCollisionCheck checkCollision;
+    [Header("やられたときに鳴らすSE")] public AudioClip deadSE;
 
     private Rigidbody2D rb = null;
     private SpriteRenderer sr = null;
@@ -54,6 +55,7 @@ public class Enemy_type1 : MonoBehaviour
         else {
             if(!isDead){
                 if (GManager.instance != null){
+                    GManager.instance.PlaySE(deadSE);
                     //スコア加算
                     GManager.instance.score += myScore;
                 }

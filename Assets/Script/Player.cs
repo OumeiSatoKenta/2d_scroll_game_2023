@@ -14,6 +14,9 @@ public class Player : MonoBehaviour
     [Header("頭をぶつけた判定Obj")] public GroundCheck head;
     [Header("ダッシュの速さ表現")] public AnimationCurve dashCurve;
     [Header("ジャンプの速さ表現")] public AnimationCurve jumpCurve;
+    [Header("ジャンプするときに鳴らすSE")] public AudioClip jumpSE;
+    [Header("やられたときに鳴らすSE")] public AudioClip downSE;
+    [Header("コンティニュー時に鳴らすSE")] public AudioClip continueSE;
 
     private Animator anim     = null;
     private Rigidbody2D rb    = null;
@@ -171,6 +174,9 @@ public class Player : MonoBehaviour
         // 地面にいる時
         else if (isGround){
             if(verticalKey > 0) {
+                if(!isJump ){
+                    GManager.instance.PlaySE(jumpSE);
+                }
                 ySpeed = jumpSpeed;
                 jumpPos = transform.position.y; // ジャンプした位置を記録する
                 isJump = true;
@@ -289,6 +295,7 @@ public class Player : MonoBehaviour
             else {
                 nonDownAnim = true; // DeadAreaに落ちた時、コンティニュー処理で使う
             }
+            GManager.instance.PlaySE(downSE);
             isDown = true;
             GManager.instance.SubHeartNum();
         }
@@ -298,6 +305,7 @@ public class Player : MonoBehaviour
     /// コンティニューする
     /// </summary>
     public void ContinuePlayer(){
+        GManager.instance.PlaySE(continueSE);
         anim.Play("player_stand");
         isDown      = false;
         isJump      = false;

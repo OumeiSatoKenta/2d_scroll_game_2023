@@ -13,7 +13,9 @@ public class GManager : MonoBehaviour
     [Header("現在の復帰位置")] public int continueNum;
     [Header("現在の残機")] public int heartNum;
     [Header("デフォルトの残機")] public int defaultHeartNum;
-    [HideInInspector] public bool isGameOver = false; 
+    [HideInInspector] public bool isGameOver = false;
+
+    private AudioSource audioSource = null;
 
     private void Awake(){
         if(instance == null){
@@ -26,6 +28,10 @@ public class GManager : MonoBehaviour
             // タイトルから通してテストするときに2つ存在してしまい困るので、既に存在する時は破棄する
             Destroy(this.gameObject);
         }
+    }
+
+    private void Start(){
+        audioSource = GetComponent<AudioSource>();
     }
 
     /// <summary>
@@ -57,4 +63,16 @@ public class GManager : MonoBehaviour
         continueNum = 0;
     }
 
+    /// <summary>
+    /// SEを鳴らす
+    /// </summary>
+    /// <param name="clip"></param>    
+    public void PlaySE(AudioClip clip){
+        if(audioSource != null){
+            audioSource.PlayOneShot(clip);
+        }
+        else {
+            Debug.Log("[DEBUG] Audio Source is not attached!");
+        }
+    }
 }
