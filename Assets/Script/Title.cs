@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class Title : MonoBehaviour
 {
     [Header("フェード")] public FadeImage fade;
+    [Header("ゲームスタート時に鳴らすSE")] public AudioClip startSE;
 
     private bool firstPush = false;
     private bool goNextScene = false;
@@ -15,8 +16,7 @@ public class Title : MonoBehaviour
         Debug.Log("Press Start!");
         if (!firstPush)
         {
-            Debug.Log("Go Next Scene!");
-            // ここに次のシーンへ行く命令を書く
+            GManager.instance.PlaySE(startSE);
             fade.StartFadeOut();
             firstPush = true;
         }
