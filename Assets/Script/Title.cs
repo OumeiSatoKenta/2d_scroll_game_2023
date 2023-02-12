@@ -13,7 +13,6 @@ public class Title : MonoBehaviour
     
     public void PressStart()
     {
-        Debug.Log("Press Start!");
         if (!firstPush)
         {
             GManager.instance.PlaySE(startSE);
