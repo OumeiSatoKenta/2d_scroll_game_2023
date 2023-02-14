@@ -23,14 +23,15 @@ public class Player : MonoBehaviour
     private SpriteRenderer sr  = null;
     private CapsuleCollider2D capcol = null;
     private MoveObject moveObj = null;
-    private bool isGround    = false;
-    private bool isJump      = false;
-    private bool isOtherJump = false;
-    private bool isRun       = false;
-    private bool isHead      = false;
-    private bool isDown      = false;
-    private bool isContinue  = false;
-    private bool nonDownAnim = false;
+    private bool isGround      = false;
+    private bool isJump        = false;
+    private bool isOtherJump   = false;
+    private bool isRun         = false;
+    private bool isHead        = false;
+    private bool isDown        = false;
+    private bool isContinue    = false;
+    private bool nonDownAnim   = false;
+    private bool isClearMotion = false;
     private float jumpPos         = 0.0f;
     private float otherJumpHeight = 0.0f;
     private float continueTime    = 0.0f;
@@ -84,7 +85,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (!isDown && !GManager.instance.isGameOver){
+        if (!isDown && !GManager.instance.isGameOver && !GManager.instance.isStageClear){
             // 設置判定を得る
             isGround = ground.IsGround();
             isHead   = head.IsGround();
@@ -105,7 +106,11 @@ public class Player : MonoBehaviour
             rb.velocity = new Vector2(xSpeed, ySpeed) + addVelocity;
         }
         else {
-            // Downしている時は、動かないようにする
+            if (!isClearMotion && GManager.instance.isStageClear){
+                anim.Play("player_clear");
+                isClearMotion = true;
+            }
+            // Clear, Downしている時は、動かないようにする
             rb.velocity = new Vector2(0, -gravity);
         }
     }
