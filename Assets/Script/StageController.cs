@@ -11,6 +11,9 @@ public class StageController : MonoBehaviour
     [Header("フェード")] public FadeImage fade;
     [Header("ゲームオーバー時に鳴らすSE")] public AudioClip gameOverSE;
     [Header("リトライ時に鳴らすSE")] public AudioClip retrySE;
+    [Header("ステージクリアSE")] public AudioClip stageClearSE;
+    [Header("ステージクリア")] public GameObject stageClearObj;
+    [Header("ステージクリア判定")] public PlayerTriggerCheck stageClearTrigger;
 
     private Player p;
     private int nextStageNum;
@@ -19,11 +22,13 @@ public class StageController : MonoBehaviour
     private bool doGameOver    = false;
     private bool retryGame     = false;
     private bool doSceneChange = false;
+    private bool doClear       = false;
 
     void Start()
     {
-        if (playerObj != null && continuePoint != null && continuePoint.Length > 0){
+        if (isSetting()){
             gameOverObj.SetActive(false); // リトライ画面をオフに
+            stageClearObj.SetActive(false); // クリア画面をオフに
             playerObj.transform.position = continuePoint[0].transform.position;
             p = playerObj.GetComponent<Player>(); // こっちはpublic 変数にアクセスする用
             if(p == null){
@@ -31,7 +36,7 @@ public class StageController : MonoBehaviour
             }
         }
         else {
-            Debug.Log("[ERROR] settings is not enough for continue points");
+            Debug.Log("[ERROR] settings are not enough for continue points");
         }
     }
 
@@ -44,7 +49,7 @@ public class StageController : MonoBehaviour
             doGameOver = true;
         }
         // Playerがやられた時の処理
-        if(p != null && p.IsContinueWaiting()){
+        else if(p != null && p.IsContinueWaiting() && !doGameOver){
             if(continuePoint.Length > GManager.instance.continueNum){
                 playerObj.transform.position = continuePoint[GManager.instance.continueNum].transform.position;
                 p.ContinuePlayer();
@@ -53,6 +58,12 @@ public class StageController : MonoBehaviour
                 Debug.Log("[ERROR] settings is not enough for continue points ");
             }
         }
+        // ステージクリア時の処理
+        else if (stageClearTrigger != null && stageClearTrigger.isOn && !doGameOver && !doClear){
+            StageClear();
+            doClear = true;                                                                                                             
+        }
+        
         // ステージを切り替える
         if (fade !=null && startFade && !doSceneChange){
             if (fade.IsFadeOutComplete()){
@@ -69,6 +80,16 @@ public class StageController : MonoBehaviour
             }
         }
     }
+
+    private bool isSetting() {
+        return (playerObj != null && 
+                continuePoint != null && 
+                continuePoint.Length > 0 && 
+                gameOverObj != null && 
+                fade != null 
+                && stageClearObj != null);
+    }
+
     /// <summary>
     /// 最初から始める。// ボタンから呼ばれる
     /// </summary>
@@ -77,11 +98,21 @@ public class StageController : MonoBehaviour
         ChangeScene(1); // 最初のステージに戻るので
         retryGame = true;
     }
+
     public void ChangeScene(int num){
         if(fade != null){
             nextStageNum = num;
             fade.StartFadeOut();
             startFade = true;
         }
+    }
+
+    /// <summary>
+    /// ステージをクリアしたときの演出をONにする
+    /// </summary>
+    public void StageClear(){
+        GManager.instance.isStageClear = true;
+        stageClearObj.SetActive(true);
+        GManager.instance.PlaySE(stageClearSE);
     }
 }
