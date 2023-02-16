@@ -44,6 +44,7 @@ public class Player : MonoBehaviour
     private string hitAreaTag   = "HitArea";
     private string moveFloorTag = "MoveFloor";
     private string fallFloorTag = "FallFloor";
+    private string jumpStageTag  = "JumpStage";
 
     void Start()
     {
@@ -230,8 +231,9 @@ public class Player : MonoBehaviour
         bool enemy     = (collision.collider.tag == enemyTag);
         bool moveFloor = (collision.collider.tag == moveFloorTag);
         bool fallFloor = (collision.collider.tag == fallFloorTag);
+        bool jumpStage = (collision.collider.tag == jumpStageTag);
 
-        if(enemy || moveFloor || fallFloor){
+        if(enemy || moveFloor || fallFloor || jumpStage){
             // 踏みつけ判定になる高さ
             float stepOnHeight = (capcol.size.y * (stepOnRate / 100f));
             // 踏みつけ判定のワールド座標
@@ -239,10 +241,10 @@ public class Player : MonoBehaviour
             foreach (ContactPoint2D p in collision.contacts) {
                 if(p.point.y < judgePos){
                     // もう一度跳ねる
-                    if(enemy || fallFloor){
+                    if(enemy || fallFloor || jumpStage){
                         ObjectCollision o = collision.gameObject.GetComponent<ObjectCollision>();
                         if (o!= null) {
-                            if(enemy){
+                            if(enemy || jumpStage){
                                 otherJumpHeight = o.boundHeight; // 踏んづけたものから跳ねる高さを取得す
                                 o.playerStepOn = true; // 踏んづけたものに対して踏んづけたことを通知する
                                 jumpPos = transform.position.y; // ジャンプした位置を記録する

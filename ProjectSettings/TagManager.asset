@@ -11,6 +11,7 @@ TagManager:
   - GroundPlatform
   - MoveFloor
   - FallFloor
+  - JumpStage
   layers:
   - Default
   - TransparentFX
