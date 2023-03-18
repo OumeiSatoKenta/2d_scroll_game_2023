@@ -71,6 +71,7 @@ public class FallDownFloor : MonoBehaviour
 
         // 一定時間経つと明滅して戻ってくる
         if (isReturn){
+            sr = spriteObj.GetComponent<SpriteRenderer>();
             // 明滅しているときに戻る
             if (blinkTimer > 0.2f){
                 sr.enabled = true;
