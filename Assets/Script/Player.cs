@@ -199,7 +199,6 @@ public class Player : MonoBehaviour
         //float verticalKey   = Input.GetAxis("Vertical");
         // ボタンの場合
         float verticalKey = isPushedJumpButton();
-
         float ySpeed = -gravity;
         // 何かを踏んだ際のジャンプ
         if (isOtherJump){
