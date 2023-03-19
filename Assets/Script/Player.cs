@@ -12,6 +12,11 @@ public class Player : MonoBehaviour
     [Header("踏みつけ判定の高さの割合(%)")] public float stepOnRate;
     [Header("接地判定Obj")] public GroundCheck ground;
     [Header("頭をぶつけた判定Obj")] public GroundCheck head;
+    [Header("左ボタンObj")] public RectTransform moveLeftButtonRt;
+    [Header("右ボタンObj")] public RectTransform moveRightButtonRt;
+    [Header("ジャンプボタンObj")] public RectTransform jumpButtonRt;
+    [Header("カメラObj")] public Camera cameraObj;
+    [Header("ボタンキャンバスObj")] public Canvas buttonCanvas;
     [Header("ダッシュの速さ表現")] public AnimationCurve dashCurve;
     [Header("ジャンプの速さ表現")] public AnimationCurve jumpCurve;
     [Header("ジャンプするときに鳴らすSE")] public AudioClip jumpSE;
@@ -45,6 +50,7 @@ public class Player : MonoBehaviour
     private string moveFloorTag = "MoveFloor";
     private string fallFloorTag = "FallFloor";
     private string jumpStageTag  = "JumpStage";
+    private Vector3 touchPosition;
 
     void Start()
     {
@@ -121,25 +127,23 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <returns></returns>
     private float GetXSpeed(){
-        // キー入力されたら行動する
-        float horizontalKey = Input.GetAxis("Horizontal");
+        // キーボード入力の場合
+        // float horizontalKey = Input.GetAxis("Horizontal");
+        // ボタン入力の場合
+        float horizontalKey = GetHorizontalButtonAxis();
         float xSpeed = 0.0f;
 
         if (horizontalKey > 0) {
             transform.localScale = new Vector3(1, 1, 1);
             isRun = true;
             dashTime += Time.deltaTime;
-            //xSpeed = speed;
-            //ゆっくり加速したい場合、
-            xSpeed = Input.GetAxis("Horizontal") * speed;
+            xSpeed = speed;
         }
         else if (horizontalKey < 0) {
             transform.localScale = new Vector3(-1, 1, 1);
             isRun = true;
             dashTime += Time.deltaTime;
-            //xSpeed = -speed;
-            //ゆっくり加速したい場合、
-            xSpeed = Input.GetAxis("Horizontal") * speed;
+            xSpeed = -speed;
         }
         else {
             dashTime  = 0.0f;
@@ -163,12 +167,38 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
+    /// X軸方向のボタンが押されたことを検知し、方向を出す。
+    /// </summary>
+    /// <returns>X軸の方向</returns>
+    private float GetHorizontalButtonAxis(){
+        if(!buttonCanvas.enabled) {
+            // ゲームクリア、リタイアの時などでCanvasがenableじゃないときは何もしない
+            return 0;
+        }
+        if(Input.GetMouseButton(0)){
+            touchPosition = Input.mousePosition;
+            if (RectTransformUtility.RectangleContainsScreenPoint(moveLeftButtonRt, touchPosition, cameraObj)){
+                return -1;
+            }
+            else if (RectTransformUtility.RectangleContainsScreenPoint(moveRightButtonRt, touchPosition, cameraObj)){
+                return 1;
+            }
+        } 
+
+        // それ以外の時は0を返す
+        return 0;
+    }
+
+
+    /// <summary>
     /// Y成分で必要な計算をし、速度を返す。フラグでプレイヤーの状態を特定して、速度を決め、アニメーションカーブに適用する。
     /// </summary>
     /// <returns>Y軸の速さ</returns>
     private float GetYSpeed(){
-        
-        float verticalKey   = Input.GetAxis("Vertical");
+        // キーボードの場合
+        //float verticalKey   = Input.GetAxis("Vertical");
+        // ボタンの場合
+        float verticalKey = isPushedJumpButton();
         float ySpeed = -gravity;
         // 何かを踏んだ際のジャンプ
         if (isOtherJump){
@@ -225,6 +255,28 @@ public class Player : MonoBehaviour
         }
         return ySpeed;
     }
+
+    /// <summary>
+    /// ジャンプボタンが押下されたことを検知する
+    /// </summary>
+    /// <returns>ジャンプボタンが押下されたか？</returns>
+    private float isPushedJumpButton(){
+        if(!buttonCanvas.enabled) {
+            // ゲームクリア、リタイアの時などでCanvasがenableじゃないときは何もしない
+            return 0;
+        }
+        if(Input.GetMouseButton(0)){
+            touchPosition = Input.mousePosition;
+            if (RectTransformUtility.RectangleContainsScreenPoint(jumpButtonRt, touchPosition, cameraObj)){
+                return 1;
+            }
+        } 
+
+        // それ以外の時は0を返す
+        return 0;
+    }
+
+
 
     private void OnCollisionEnter2D(Collision2D collision){
 
