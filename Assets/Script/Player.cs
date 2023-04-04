@@ -175,7 +175,7 @@ public class Player : MonoBehaviour
             // ゲームクリア、リタイアの時などでCanvasがenableじゃないときは何もしない
             return 0;
         }
-        if(Input.GetMouseButton(0)){
+        if(Input.GetMouseButton(0) || Input.GetMouseButton(1)){
             touchPosition = Input.mousePosition;
             if (RectTransformUtility.RectangleContainsScreenPoint(moveLeftButtonRt, touchPosition, cameraObj)){
                 return -1;
@@ -265,7 +265,7 @@ public class Player : MonoBehaviour
             // ゲームクリア、リタイアの時などでCanvasがenableじゃないときは何もしない
             return 0;
         }
-        if(Input.GetMouseButton(0)){
+        if(Input.GetMouseButton(0) || Input.GetMouseButton(1)){
             touchPosition = Input.mousePosition;
             if (RectTransformUtility.RectangleContainsScreenPoint(jumpButtonRt, touchPosition, cameraObj)){
                 return 1;
