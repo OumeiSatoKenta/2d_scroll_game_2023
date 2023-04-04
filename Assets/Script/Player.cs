@@ -228,7 +228,8 @@ public class Player : MonoBehaviour
         if (Input.touchCount > 0) {
             for(int i = 0; i < Input.touchCount; i++) {
                 Touch touch = Input.GetTouch(i);
-                if (touch.phase == TouchPhase.Began) {
+                //if (touch.phase == TouchPhase.Began) {
+                if (touch.phase == TouchPhase.Stationary) {
                     if (RectTransformUtility.RectangleContainsScreenPoint(moveRightButtonRt, touch.position, cameraObj)){
                         return 1;
                     }
@@ -330,7 +331,8 @@ public class Player : MonoBehaviour
         if (Input.touchCount > 0) {
             for(int i = 0; i < Input.touchCount; i++) {
                 Touch touch = Input.GetTouch(i);
-                if (touch.phase == TouchPhase.Began) {
+                //if (touch.phase == TouchPhase.Began) {
+                if (touch.phase == TouchPhase.Stationary) {
                     if (RectTransformUtility.RectangleContainsScreenPoint(jumpButtonRt, touch.position, cameraObj)){
                         return 1;
                     }
