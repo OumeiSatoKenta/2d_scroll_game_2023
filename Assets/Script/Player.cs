@@ -105,7 +105,7 @@ public class Player : MonoBehaviour
                 Touch touch = Input.GetTouch(i);
                 //if (touch.phase == TouchPhase.Began) {
                 if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary) {
-                    if (RectTransformUtility.RectangleContainsScreenPoint(JumpButtonRt, touch.position, cameraObj)){
+                    if (RectTransformUtility.RectangleContainsScreenPoint(jumpButtonRt, touch.position, cameraObj)){
                         isJumpPressed = true;
                     }
                     if (RectTransformUtility.RectangleContainsScreenPoint(moveRightButtonRt, touch.position, cameraObj)){
@@ -116,7 +116,7 @@ public class Player : MonoBehaviour
                     }
                 }
                 else {
-                    if (RectTransformUtility.RectangleContainsScreenPoint(JumpButtonRt, touch.position, cameraObj)){
+                    if (RectTransformUtility.RectangleContainsScreenPoint(jumpButtonRt, touch.position, cameraObj)){
                         isJumpPressed = false;
                     }
                     if (RectTransformUtility.RectangleContainsScreenPoint(moveRightButtonRt, touch.position, cameraObj)){
