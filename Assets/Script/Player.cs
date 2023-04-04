@@ -99,6 +99,39 @@ public class Player : MonoBehaviour
         isLeftPressed = false;
     }
 
+    private float GetButtonFlag(){
+        if (Input.touchCount > 0) {
+            for(int i = 0; i < Input.touchCount; i++) {
+                Touch touch = Input.GetTouch(i);
+                //if (touch.phase == TouchPhase.Began) {
+                if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary) {
+                    if (RectTransformUtility.RectangleContainsScreenPoint(moveRightButtonRt, touch.position, cameraObj)){
+                        isRightPressed = true;
+                    }
+                    if (RectTransformUtility.RectangleContainsScreenPoint(moveRightButtonRt, touch.position, cameraObj)){
+                        isRightPressed = true;
+                    }
+                    if (RectTransformUtility.RectangleContainsScreenPoint(moveLeftButtonRt, touch.position, cameraObj)){
+                        isLeftPressed = true;
+                    }
+                }
+                else {
+                    if (RectTransformUtility.RectangleContainsScreenPoint(moveRightButtonRt, touch.position, cameraObj)){
+                        isRightPressed = false;
+                    }
+                    if (RectTransformUtility.RectangleContainsScreenPoint(moveRightButtonRt, touch.position, cameraObj)){
+                        isRightPressed = false;
+                    }
+                    if (RectTransformUtility.RectangleContainsScreenPoint(moveLeftButtonRt, touch.position, cameraObj)){
+                        isLeftPressed = false;
+                    }
+                }
+            }
+        }
+        // それ以外の時は0を返す
+        return 0;
+    }
+
     private void Update(){
         if(isContinue){
             // 明滅させる
@@ -131,6 +164,9 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         if (!isDown && !GManager.instance.isGameOver && !GManager.instance.isStageClear){
+            // 移動、ジャンプボタン判定
+            GetButtonFlag();
+            
             // 設置判定を得る
             isGround = ground.IsGround();
             isHead   = head.IsGround();
@@ -225,22 +261,20 @@ public class Player : MonoBehaviour
             }
         } 
         */
-        if (Input.touchCount > 0) {
-            for(int i = 0; i < Input.touchCount; i++) {
-                Touch touch = Input.GetTouch(i);
-                //if (touch.phase == TouchPhase.Began) {
-                if (touch.phase == TouchPhase.Stationary) {
-                    if (RectTransformUtility.RectangleContainsScreenPoint(moveRightButtonRt, touch.position, cameraObj)){
-                        return 1;
-                    }
-                    else if (RectTransformUtility.RectangleContainsScreenPoint(moveLeftButtonRt, touch.position, cameraObj)){
-                        return -1;
-                    }
-                }
-            }
+        if(isRightPressed && isLeftPressed) {
+            return 0;
+        }
+        else if (isRightPressed) {
+            return 1;
+        }
+        else if (isLeftPressed) {
+            return -1;
+        }
+        else {
+            return 0;
         }
         // それ以外の時は0を返す
-        return 0;
+        //return 0;
     }
 
 
@@ -328,18 +362,9 @@ public class Player : MonoBehaviour
             }
         } 
         */
-        if (Input.touchCount > 0) {
-            for(int i = 0; i < Input.touchCount; i++) {
-                Touch touch = Input.GetTouch(i);
-                //if (touch.phase == TouchPhase.Began) {
-                if (touch.phase == TouchPhase.Stationary) {
-                    if (RectTransformUtility.RectangleContainsScreenPoint(jumpButtonRt, touch.position, cameraObj)){
-                        return 1;
-                    }
-                }
-            }
+        if (isJumpPressed) {
+            return 1;
         }
-
         // それ以外の時は0を返す
         return 0;
     }
