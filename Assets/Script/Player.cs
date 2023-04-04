@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -15,6 +16,10 @@ public class Player : MonoBehaviour
     [Header("左ボタンObj")] public RectTransform moveLeftButtonRt;
     [Header("右ボタンObj")] public RectTransform moveRightButtonRt;
     [Header("ジャンプボタンObj")] public RectTransform jumpButtonRt;
+    [Header("左ボタンObj2")] public Button moveLeftButtonObj;
+    [Header("右ボタンObj2")] public Button moveRightButtonObj;
+    [Header("ジャンプボタンObj2")] public Button jumpButtonObj;
+    
     [Header("カメラObj")] public Camera cameraObj;
     [Header("ボタンキャンバスObj")] public Canvas buttonCanvas;
     [Header("ダッシュの速さ表現")] public AnimationCurve dashCurve;
@@ -50,7 +55,13 @@ public class Player : MonoBehaviour
     private string moveFloorTag = "MoveFloor";
     private string fallFloorTag = "FallFloor";
     private string jumpStageTag  = "JumpStage";
+
     private Vector3 touchPosition;
+
+    // 同時押しメソッドのテストエリア
+    private bool isJumpPressed  = false;
+    private bool isRightPressed = false;
+    private bool isLeftPressed  = false;
 
     void Start()
     {
@@ -59,6 +70,33 @@ public class Player : MonoBehaviour
         rb     = GetComponent<Rigidbody2D>();
         sr     = GetComponent<SpriteRenderer>();
         capcol = GetComponent<CapsuleCollider2D>();
+
+        // ボタン
+        jumpButtonObj.onClick.AddListener(onJumpButtonDown);
+        jumpButtonObj.onClick.AddListener(onJumpButtonUp);
+        moveRightButtonObj.onClick.AddListener(onRightButtonDown);
+        moveRightButtonObj.onClick.AddListener(onRightButtonUp);
+        moveLeftButtonObj.onClick.AddListener(onLeftButtonDown);
+        moveLeftButtonObj.onClick.AddListener(onLeftButtonUp);
+    }
+
+    void onJumpButtonDown() {
+        isJumpPressed = true;
+    }
+    void onJumpButtonUp() {
+        isJumpPressed = false;
+    }
+    void onRightButtonDown() {
+        isRightPressed = true;
+    }
+    void onRightButtonUp() {
+        isRightPressed = false;
+    }
+    void onLeftButtonDown() {
+        isLeftPressed = true;
+    }
+    void onLeftButtonUp() {
+        isLeftPressed = false;
     }
 
     private void Update(){
@@ -128,9 +166,10 @@ public class Player : MonoBehaviour
     /// <returns></returns>
     private float GetXSpeed(){
         // キーボード入力の場合
-        // float horizontalKey = Input.GetAxis("Horizontal");
+        //float horizontalKey = Input.GetAxis("Horizontal");
         // ボタン入力の場合
         float horizontalKey = GetHorizontalButtonAxis();
+        //Debug.Log(horizontalKey);
         float xSpeed = 0.0f;
 
         if (horizontalKey > 0) {
@@ -175,7 +214,8 @@ public class Player : MonoBehaviour
             // ゲームクリア、リタイアの時などでCanvasがenableじゃないときは何もしない
             return 0;
         }
-        if(Input.GetMouseButton(0) || Input.GetMouseButton(1)){
+        /*
+        if(Input.GetMouseButton(0)){
             touchPosition = Input.mousePosition;
             if (RectTransformUtility.RectangleContainsScreenPoint(moveLeftButtonRt, touchPosition, cameraObj)){
                 return -1;
@@ -184,7 +224,20 @@ public class Player : MonoBehaviour
                 return 1;
             }
         } 
-
+        */
+        if (Input.touchCount > 0) {
+            for(int i = 0; i < Input.touchCount; i++) {
+                Touch touch = Input.GetTouch(i);
+                if (touch.phase == TouchPhase.Began) {
+                    if (RectTransformUtility.RectangleContainsScreenPoint(moveRightButtonRt, touch.position, cameraObj)){
+                        return 1;
+                    }
+                    else if (RectTransformUtility.RectangleContainsScreenPoint(moveLeftButtonRt, touch.position, cameraObj)){
+                        return -1;
+                    }
+                }
+            }
+        }
         // それ以外の時は0を返す
         return 0;
     }
@@ -199,6 +252,7 @@ public class Player : MonoBehaviour
         //float verticalKey   = Input.GetAxis("Vertical");
         // ボタンの場合
         float verticalKey = isPushedJumpButton();
+
         float ySpeed = -gravity;
         // 何かを踏んだ際のジャンプ
         if (isOtherJump){
@@ -265,12 +319,24 @@ public class Player : MonoBehaviour
             // ゲームクリア、リタイアの時などでCanvasがenableじゃないときは何もしない
             return 0;
         }
-        if(Input.GetMouseButton(0) || Input.GetMouseButton(1)){
+        /*
+        if(Input.GetMouseButton(0)){
             touchPosition = Input.mousePosition;
             if (RectTransformUtility.RectangleContainsScreenPoint(jumpButtonRt, touchPosition, cameraObj)){
                 return 1;
             }
         } 
+        */
+        if (Input.touchCount > 0) {
+            for(int i = 0; i < Input.touchCount; i++) {
+                Touch touch = Input.GetTouch(i);
+                if (touch.phase == TouchPhase.Began) {
+                    if (RectTransformUtility.RectangleContainsScreenPoint(jumpButtonRt, touch.position, cameraObj)){
+                        return 1;
+                    }
+                }
+            }
+        }
 
         // それ以外の時は0を返す
         return 0;
